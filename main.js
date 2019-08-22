@@ -34,20 +34,45 @@ function countProducts(codes) {
 
 function fetchProduct(products) {
 
-    let result = [];
+    let buyProductList = [];
+    let sum = 0;
     products.forEach(product => {
         db.forEach(element => {
             if (element.id === product.code) {
                 product.price = element.price;
                 product.name = element.name;
-                result.push(product);
+                buyProductList.push(product);
+                sum += (product.count * product.price);
                 return false;
             }
         });
     });
-    return result;
+
+    let receiptInfo = {};
+    receiptInfo.buyProductList = buyProductList;
+    receiptInfo.totlePrice = sum;
+    return receiptInfo;
+}
+
+
+function generateReceipts(receiptInfo) {
+    let receipt = "Receipts\n";
+    let buyProductList = receiptInfo.buyProductList;
+    receipt += "------------------------------------------------------------\n";
+    for (let i = 0; i < buyProductList.length; i++) {
+        let name = buyProductList[i].name;
+        let space = 20 - name.length;
+        for (let j = 0; j < space; j++) {
+            name += " ";
+        }
+        receipt += name + buyProductList[i].price + "          " + buyProductList[i].count + "\n";
+    }
+    receipt += "------------------------------------------------------------\n";
+    receipt += "Price: " + receiptInfo.totlePrice;
+    return receipt;
 }
 module.exports = {
     countProducts,
-    fetchProduct
+    fetchProduct,
+    generateReceipts
 };
